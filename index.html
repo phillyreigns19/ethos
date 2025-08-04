@@ -4,255 +4,225 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ETHOS Runner</title>
+
+
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
 <style>
-  
-  *{box-sizing:border-box}html,body{margin:0;padding:0}
-  body{min-height:100vh;display:flex;justify-content:center;align-items:center;
-       background:linear-gradient(135deg,#0a0a0a 0%,#1a0033 50%,#000000 100%);
-       font-family:'Orbitron',monospace;overflow:hidden}
-  .page-title{position:fixed;top:8px;left:50%;transform:translateX(-50%);
-              font-size:2rem;font-weight:900;color:#00ffff;
-              text-shadow:0 0 10px rgba(0,255,255,.8);z-index:30}
-  .game-container{position:relative;border:2px solid #00ffff;border-radius:15px;
-                  background:rgba(0,0,0,.8);
-                  box-shadow:0 0 20px rgba(0,255,255,.3),inset 0 0 20px rgba(0,255,255,.1)}
-  canvas{display:block;border-radius:13px;
-         background:linear-gradient(180deg,#0a0015 0%,#1a0033 50%,#0f001a 100%)}
- 
-  .ui-overlay{position:absolute;top:20px;left:20px;color:#00ffff;font-weight:700;
-              text-shadow:0 0 10px rgba(0,255,255,.8);z-index:10}
-  .pause-btn{position:absolute;top:20px;right:20px;padding:10px 20px;border:none;
-             border-radius:20px;cursor:pointer;font-weight:700;z-index:15;
-             background:linear-gradient(45deg,#00ffff,#ff0080);color:#000;
-             transition:transform .2s,box-shadow .2s}
-  .pause-btn:hover{transform:scale(1.05);box-shadow:0 0 15px rgba(0,255,255,.6)}
-  .modal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-         text-align:center;padding:30px;border-radius:15px;background:rgba(0,0,0,.9);z-index:20;display:none}
-  .start-screen{display:block;border:2px solid #00ffff;box-shadow:0 0 30px rgba(0,255,255,.5)}
-  .pause-screen,.game-over-screen{border:2px solid #ff0080;box-shadow:0 0 30px rgba(255,0,128,.5)}
-  .btn{background:linear-gradient(45deg,#00ffff,#ff0080);border:none;padding:15px 30px;margin:10px;
-       border-radius:25px;cursor:pointer;font-weight:700;text-transform:uppercase;color:#000;
-       transition:transform .2s,box-shadow .2s}
-  .btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,255,255,.6)}
-  .instructions{margin-top:20px;font-size:14px;opacity:.8}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  display:flex;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,#0a0a0a 0%,#1a0033 50%,#000000 100%);
+  font-family:'Orbitron',monospace;overflow:hidden;
+}
+
+.game-container{
+  position:relative;border:2px solid #00ffff;border-radius:15px;
+  background:rgba(0,0,0,.85);
+  box-shadow:0 0 20px rgba(0,255,255,.25),inset 0 0 20px rgba(0,255,255,.12);
+}
+canvas{width:100%;height:100%;display:block;border-radius:13px}
+
+
+.page-title{
+  position:fixed;top:6px;left:50%;transform:translateX(-50%);
+  font-size:clamp(1.3rem,5vw,2.2rem);font-weight:900;color:#00ffff;
+  text-shadow:0 0 10px rgba(0,255,255,.8);z-index:40;
+}
+
+
+.hud{
+  position:absolute;top:.5rem;left:50%;transform:translateX(-50%);
+  display:flex;gap:min(4vw,1.2rem);padding:.3rem .8rem;border-radius:12px;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(3px);
+  color:#00ffff;font-weight:700;font-size:clamp(.75rem,3.2vw,.95rem);
+  text-shadow:0 0 8px rgba(0,255,255,.8);z-index:10;
+}
+.pause-btn{
+  position:absolute;top:.5rem;right:.6rem;z-index:15;
+  padding:clamp(.45rem,1.7vw,.6rem) clamp(.9rem,4vw,1.3rem);
+  border:none;border-radius:20px;cursor:pointer;font-weight:700;
+  background:linear-gradient(45deg,#00ffff,#ff0080);color:#000;
+  font-size:clamp(.75rem,3vw,.9rem);
+  transition:transform .15s,box-shadow .15s;
+}
+.pause-btn:hover{transform:scale(1.06);box-shadow:0 0 14px rgba(0,255,255,.6)}
+
+
+.modal{
+  position:absolute;inset:0;margin:auto;
+  width:92%;max-width:420px;
+  text-align:center;padding:1.8rem 1.6rem;
+  border-radius:16px;background:rgba(0,0,0,.92);z-index:30;display:none
+}
+.start-screen{display:block;border:2px solid #00ffff;box-shadow:0 0 28px rgba(0,255,255,.45)}
+.pause-screen,.game-over-screen{border:2px solid #ff0080;box-shadow:0 0 28px rgba(255,0,128,.45)}
+
+
+.btn-row{display:flex;flex-wrap:wrap;justify-content:center;gap:.8rem;margin-top:1rem}
+
+
+#startScreen .btn-row{margin-top:3.4rem;}
+
+
+.btn{
+  flex:1 1 120px;
+  background:linear-gradient(45deg,#00ffff,#ff0080);border:none;
+  padding:clamp(.7rem,3vw,.9rem) clamp(1.2rem,6vw,1.8rem);
+  border-radius:25px;font-weight:700;cursor:pointer;color:#000;
+  text-transform:uppercase;font-size:clamp(.8rem,3.5vw,1rem);
+  transition:transform .15s,box-shadow .15s;
+}
+.btn:hover{transform:scale(1.05);box-shadow:0 0 20px rgba(0,255,255,.6)}
+
+.instructions{margin-top:1.3rem;font-size:clamp(.7rem,3vw,.9rem);opacity:.8}
+
+
+.modal-active .hud,
+.modal-active .pause-btn{visibility:hidden}
 </style>
 </head>
 <body>
 <div class="page-title">ETHOS</div>
 
-<div class="game-container">
- <canvas id="gameCanvas" width="1000" height="400"></canvas>
+<div id="wrapper" class="game-container">
+  <canvas id="gameCanvas" width="1000" height="400"></canvas>
 
 
- <div class="ui-overlay">
-   <div>SCORE: <span id="score">0</span></div>
-   <div>HIGH&nbsp;SCORE: <span id="highScore">0</span></div>
- </div>
- <button id="pauseBtn" class="pause-btn" onclick="togglePause()">PAUSE</button>
+  <div id="hud" class="hud">
+    <div>SCORE&nbsp;<span id="score">0</span></div>
+    <div>BEST&nbsp;<span id="highScore">0</span></div>
+  </div>
+  <button id="pauseBtn" class="pause-btn" onclick="togglePause()">PAUSE</button>
 
+  <div id="startScreen" class="modal start-screen">
+    <h1 style="margin-bottom:10px;font-size:clamp(1.6rem,6vw,2.5rem)">ETHOS</h1>
+    <h2 style="margin-bottom:20px;color:#ff0080;font-size:clamp(1.2rem,5vw,1.6rem)">ETHOS RUNNER</h2>
+    <div style="margin-bottom:18px;font-size:clamp(.85rem,4vw,1rem)">SELECT&nbsp;DIFFICULTY</div>
+    <div class="btn-row">
+      <button class="btn" onclick="startGame('easy')">EASY</button>
+      <button class="btn" onclick="startGame('medium')">MEDIUM</button>
+      <button class="btn" onclick="startGame('hard')">HARD</button>
+    </div>
+    <div style="margin-top:18px;font-size:clamp(.9rem,4vw,1.1rem);color:#00ffff">
+      BEST&nbsp;SCORE&nbsp;<span id="bestScoreStart">0</span>
+    </div>
+    <div class="instructions">
+      ↑ / SPACE = THRUST • ← / → = MOVE • P = PAUSE
+    </div>
+  </div>
 
- <div id="startScreen" class="modal start-screen">
-   <h1 style="margin:0 0 10px;font-size:2.5em">ETHOS</h1>
-   <h2 style="margin:0 0 20px;color:#ff0080">ETHOS RUNNER</h2>
-   <div style="margin-bottom:20px;font-size:14px">SELECT DIFFICULTY</div>
-   <button class="btn" onclick="startGame('easy')">EASY</button>
-   <button class="btn" onclick="startGame('medium')">MEDIUM</button>
-   <button class="btn" onclick="startGame('hard')">HARD</button>
-   <div style="margin-top:25px;font-size:1.1em;color:#00ffff">
-     BEST&nbsp;SCORE: <span id="bestScoreStart">0</span>
-   </div>
-   <div class="instructions">
-     ↑ / SPACE = THRUST &nbsp;•&nbsp; ←/→ = MOVE &nbsp;•&nbsp; P = PAUSE
-   </div>
- </div>
+  
+  <div id="pauseScreen" class="modal pause-screen">
+    <h2 style="margin-bottom:20px;color:#ff0080;font-size:clamp(1.1rem,5vw,1.4rem)">SYSTEM&nbsp;PAUSED</h2>
+    <div class="btn-row">
+      <button class="btn" onclick="togglePause()">RESUME</button>
+      <button class="btn" onclick="restartGame()">RESTART</button>
+      <button class="btn" onclick="returnToMenu()">MENU</button>
+    </div>
+  </div>
 
- <div id="pauseScreen" class="modal pause-screen">
-   <h2 style="margin:0 0 20px;color:#ff0080">SYSTEM PAUSED</h2>
-   <button class="btn" onclick="togglePause()">RESUME</button>
-   <button class="btn" onclick="restartGame()">RESTART</button>
-   <button class="btn" onclick="returnToMenu()">MENU</button>
- </div>
-
-
- <div id="gameOverScreen" class="modal game-over-screen">
-   <h2 style="margin:0 0 20px;color:#ff0080">SYSTEM FAILURE</h2>
-   <div style="font-size:1.2em;margin-bottom:10px">
-     FINAL&nbsp;SCORE: <span id="finalScore">0</span>
-   </div>
-   <div style="font-size:1.2em;margin-bottom:20px">
-     BEST&nbsp;SCORE: <span id="bestScoreOver">0</span>
-   </div>
-   <button class="btn" onclick="restartGame()">REBOOT</button>
-   <button class="btn" onclick="returnToMenu()">MENU</button>
- </div>
+  
+  <div id="gameOverScreen" class="modal game-over-screen">
+    <h2 style="margin-bottom:20px;color:#ff0080;font-size:clamp(1.1rem,5vw,1.4rem)">SYSTEM&nbsp;FAILURE</h2>
+    <div style="font-size:clamp(.95rem,4vw,1.1rem);margin-bottom:8px">
+      FINAL&nbsp;SCORE&nbsp;<span id="finalScore">0</span>
+    </div>
+    <div style="font-size:clamp(.95rem,4vw,1.1rem);margin-bottom:16px">
+      BEST&nbsp;SCORE&nbsp;<span id="bestScoreOver">0</span>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="restartGame()">REBOOT</button>
+      <button class="btn" onclick="returnToMenu()">MENU</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ---- CANVAS & GLOBALS ---- */
+
+const wrapper = document.getElementById('wrapper');
+const RATIO = 1000/400;
+function resizeGame(){
+  const vw=window.innerWidth, vh=window.innerHeight;
+  let w=vw, h=w/RATIO;
+  if(h>vh){h=vh;w=h*RATIO;}
+  wrapper.style.width=w+'px';
+  wrapper.style.height=h+'px';
+}
+window.addEventListener('resize',resizeGame);
+window.addEventListener('orientationchange',resizeGame);
+resizeGame();
+
 const canvas=document.getElementById('gameCanvas'), ctx=canvas.getContext('2d');
 let difficulty='medium';
 const DIFFS={easy:{baseSpeed:2,speedInc:.2,spawnBase:130},
              medium:{baseSpeed:3,speedInc:.3,spawnBase:100},
              hard:{baseSpeed:4,speedInc:.4,spawnBase:80}};
 let gameRunning=false,gameStarted=false,gamePaused=false;
-let score=0,highScore=Number(localStorage.getItem('ethereumRunnerHighScore')||0);
+let score=0,highScore=+localStorage.getItem('ethereumRunnerHighScore')||0;
 let gameSpeed=3,frame=0;
 let player,barriers=[],particles=[],stars=[];
-const gapHeight=140;                
+const gapHeight=140;
 
 
 let audioContext,sounds={};
 function initAudio(){try{audioContext=new(window.AudioContext||window.webkitAudioContext)();createSounds();}catch(e){}}
-function createBeep(f,d){return()=>{if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();
-  o.connect(g);g.connect(audioContext.destination);o.frequency.value=f;
-  g.gain.setValueAtTime(.3,audioContext.currentTime);
-  g.gain.exponentialRampToValueAtTime(.01,audioContext.currentTime+d);
-  o.start();o.stop(audioContext.currentTime+d);};}
-function createSweep(up){return()=>{if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();
-  o.connect(g);g.connect(audioContext.destination);o.type=up?'triangle':'sawtooth';
-  o.frequency.setValueAtTime(400,audioContext.currentTime);
-  o.frequency.exponentialRampToValueAtTime(up?800:200,audioContext.currentTime+.5);
-  g.gain.setValueAtTime(.3,audioContext.currentTime);
-  g.gain.exponentialRampToValueAtTime(.01,audioContext.currentTime+.5);
-  o.start();o.stop(audioContext.currentTime+.5);};}
-function createSounds(){sounds.jump=createBeep(700,.1);sounds.start=createSweep(true);sounds.gameOver=createSweep(false);}
-function playSound(n){sounds[n]&&sounds[n]();}
-
+const beep=(f,d)=>()=>{if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.frequency.value=f;g.gain.setValueAtTime(.3,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.01,audioContext.currentTime+d);o.start();o.stop(audioContext.currentTime+d);}
+const sweep=(up)=>()=>{if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();o.connect(g);g.connect(audioContext.destination);o.type=up?'triangle':'sawtooth';o.frequency.setValueAtTime(400,audioContext.currentTime);o.frequency.exponentialRampToValueAtTime(up?800:200,audioContext.currentTime+.5);g.gain.setValueAtTime(.3,audioContext.currentTime);g.gain.exponentialRampToValueAtTime(.01,audioContext.currentTime+.5);o.start();o.stop(audioContext.currentTime+.5);}
+function createSounds(){sounds.jump=beep(700,.1);sounds.start=sweep(true);sounds.gameOver=sweep(false);}
+const playSound=n=>sounds[n]&&sounds[n]();
 
 function initStars(){stars=[];for(let i=0;i<100;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+.5,speed:Math.random()*.5+.2,op:Math.random()*.8+.2});}
-function drawStars(){stars.forEach(s=>{s.x-=s.speed;if(s.x<0)s.x=canvas.width;
-  ctx.save();ctx.globalAlpha=s.op;ctx.fillStyle='#fff';ctx.shadowColor='#fff';
-  ctx.shadowBlur=s.size;ctx.fillRect(s.x,s.y,s.size,s.size);ctx.restore();});}
+function drawStars(){stars.forEach(s=>{s.x-=s.speed;if(s.x<0)s.x=canvas.width;ctx.save();ctx.globalAlpha=s.op;ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.shadowBlur=s.size;ctx.fillRect(s.x,s.y,s.size,s.size);ctx.restore();});}
 
-class Particle{constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.vx=(Math.random()-.5)*6;this.vy=Math.random()*-4-1;
- this.life=25;this.size=Math.random()*3+1;}
- update(){this.x+=this.vx;this.y+=this.vy;this.vy+=.15;this.life--;}
- draw(){ctx.save();ctx.globalAlpha=this.life/25;ctx.fillStyle=this.c;ctx.shadowColor=this.c;
-   ctx.shadowBlur=5;ctx.fillRect(this.x,this.y,this.size,this.size);ctx.restore();}
- dead(){return this.life<=0;}}
 
+class Particle{constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.vx=(Math.random()-.5)*6;this.vy=Math.random()*-4-1;this.life=25;this.size=Math.random()*3+1;}update(){this.x+=this.vx;this.y+=this.vy;this.vy+=.15;this.life--;}draw(){ctx.save();ctx.globalAlpha=this.life/25;ctx.fillStyle=this.c;ctx.shadowColor=this.c;ctx.shadowBlur=5;ctx.fillRect(this.x,this.y,this.size,this.size);ctx.restore();}dead(){return this.life<=0;}}
 
 class Player{
   constructor(){this.x=100;this.y=canvas.height/2;this.w=40;this.h=40;this.vx=0;this.vy=0;this.rot=0;}
-  update(){
-    this.vy+=.4;this.y+=this.vy;this.x+=this.vx;
-    if(this.y>=canvas.height-this.h-20){this.y=canvas.height-this.h-20;this.vy=0;}
-    if(this.y<0){this.y=0;this.vy=0;}
-    if(this.x<0)this.x=0;if(this.x>canvas.width-this.w)this.x=canvas.width-this.w;
-    this.rot+=.02;
-  }
-  jump(){this.vy=-6;playSound('jump');
-    for(let i=0;i<8;i++)particles.push(new Particle(this.x+this.w/2,this.y+this.h,'#00ffff'));}
-  draw(){
-    ctx.save();ctx.translate(this.x+this.w/2,this.y+this.h/2);ctx.rotate(this.rot);
-    ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.moveTo(0,-this.h/2);ctx.lineTo(this.w/2*.7,0);ctx.lineTo(0,this.h/2);ctx.lineTo(-this.w/2*.7,0);
-    ctx.closePath();ctx.fill();
-    ctx.shadowBlur=0;ctx.fillStyle='#000';ctx.fillRect(-8,-6,3,6);ctx.fillRect(5,-6,3,6);
-    ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.beginPath();ctx.arc(0,2,8,0,Math.PI);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(-2,2);ctx.stroke();ctx.restore();}
+  update(){this.vy+=.4;this.y+=this.vy;this.x+=this.vx;if(this.y>=canvas.height-this.h-20){this.y=canvas.height-this.h-20;this.vy=0;}if(this.y<0){this.y=0;this.vy=0;}if(this.x<0)this.x=0;if(this.x>canvas.width-this.w)this.x=canvas.width-this.w;this.rot+=.02;}
+  jump(){this.vy=-6;playSound('jump');for(let i=0;i<8;i++)particles.push(new Particle(this.x+this.w/2,this.y+this.h,'#00ffff'));}
+  draw(){ctx.save();ctx.translate(this.x+this.w/2,this.y+this.h/2);ctx.rotate(this.rot);ctx.shadowColor='#fff';ctx.shadowBlur=18;ctx.fillStyle='#fff';ctx.beginPath();ctx.moveTo(0,-this.h/2);ctx.lineTo(this.w/2*.7,0);ctx.lineTo(0,this.h/2);ctx.lineTo(-this.w/2*.7,0);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#000';ctx.fillRect(-8,-6,3,6);ctx.fillRect(5,-6,3,6);ctx.lineWidth=2;ctx.strokeStyle='#000';ctx.beginPath();ctx.arc(0,2,8,0,Math.PI);ctx.stroke();ctx.beginPath();ctx.moveTo(0,-2);ctx.lineTo(-2,2);ctx.stroke();ctx.restore();}
   bounds(){return{x:this.x+5,y:this.y+5,w:this.w-10,h:this.h-10};}
 }
 
-
 class Barrier{
- constructor(y,h){this.x=canvas.width;this.y=y;this.w=50;this.h=h;this.c=this.rand();this.p=0;this.scored=false;}
- rand(){return['#ff0080','#8000ff','#ff4000','#00ff80','#ffff00'][Math.floor(Math.random()*5)];}
- update(){this.x-=gameSpeed;this.p+=.1;}
- draw(){ctx.save();ctx.shadowColor=this.c;ctx.shadowBlur=10+Math.sin(this.p)*5;
-       const g=ctx.createLinearGradient(this.x,this.y,this.x+this.w,this.y+this.h);
-       g.addColorStop(0,this.c);g.addColorStop(.5,'rgba(255,255,255,.35)');g.addColorStop(1,this.c);
-       ctx.fillStyle=g;ctx.fillRect(this.x,this.y,this.w,this.h);ctx.restore();}
- bounds(){return{x:this.x,y:this.y,w:this.w,h:this.h};}
- off(){return this.x+this.w<0;}
- passed(px){return !this.scored&&px>this.x+this.w;}
+  constructor(y,h){this.x=canvas.width;this.y=y;this.w=50;this.h=h;this.c=['#ff0080','#8000ff','#ff4000','#00ff80','#ffff00'][Math.floor(Math.random()*5)];this.p=0;this.scored=false;}
+  update(){this.x-=gameSpeed;this.p+=.1;}
+  draw(){ctx.save();ctx.shadowColor=this.c;ctx.shadowBlur=10+Math.sin(this.p)*5;const g=ctx.createLinearGradient(this.x,this.y,this.x+this.w,this.y+this.h);g.addColorStop(0,this.c);g.addColorStop(.5,'rgba(255,255,255,.35)');g.addColorStop(1,this.c);ctx.fillStyle=g;ctx.fillRect(this.x,this.y,this.w,this.h);ctx.restore();}
+  bounds(){return{x:this.x,y:this.y,w:this.w,h:this.h};}
+  off(){return this.x+this.w<0;}
+  passed(px){return !this.scored&&px>this.x+this.w;}
 }
+function createBarrierPair(){const mode=['upper','middle','lower'][Math.floor(Math.random()*3)];let topH;if(mode==='upper')topH=20+Math.random()*40;else if(mode==='lower')topH=canvas.height-gapHeight-(20+Math.random()*40);else topH=(canvas.height-gapHeight)/2;topH=Math.max(0,topH);const bottomY=topH+gapHeight;barriers.push(new Barrier(0,topH));barriers.push(new Barrier(bottomY,canvas.height-bottomY));}
 
-function createBarrierPair(){
-  const mode=['upper','middle','lower'][Math.floor(Math.random()*3)];
-  let topH;
-  if(mode==='upper'){                    
-    topH=20+Math.random()*40;             
-  }else if(mode==='lower'){              
-    topH=canvas.height-gapHeight-(20+Math.random()*40);
-  }else{                                  
-    topH=(canvas.height-gapHeight)/2;
-  }
-  if(topH<0)topH=0;
-  const bottomY=topH+gapHeight;
-  const bottomH=canvas.height-bottomY;
-  barriers.push(new Barrier(0,topH));
-  barriers.push(new Barrier(bottomY,bottomH));
-}
+const collide=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+
+const addModalState =()=>wrapper.classList.add('modal-active');
+const removeModalState =()=>wrapper.classList.remove('modal-active');
+function updateBestDisplays(){highScore=+localStorage.getItem('ethereumRunnerHighScore')||0;document.getElementById('highScore').textContent=highScore;document.getElementById('bestScoreStart').textContent=highScore;document.getElementById('bestScoreOver').textContent=highScore;}
 
 
-function collide(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
+function initGame(){player=new Player();barriers=[];particles=[];initStars();score=0;frame=0;gameSpeed=DIFFS[difficulty].baseSpeed;updateBestDisplays();document.getElementById('pauseBtn').textContent='PAUSE';}
+function gameLoop(){if(!gameRunning||gamePaused)return;frame++;ctx.clearRect(0,0,canvas.width,canvas.height);drawStars();const d=DIFFS[difficulty];gameSpeed=d.baseSpeed+Math.floor(score/30)*d.speedInc;if(frame%d.spawnBase===0)createBarrierPair();player.update();barriers=barriers.filter(b=>{b.update();if(b.passed(player.x)){b.scored=true;score+=10;}return !b.off();});particles=particles.filter(p=>{p.update();return !p.dead();});if(barriers.some(b=>collide(player.bounds(),b.bounds())))return gameOver();player.draw();barriers.forEach(b=>b.draw());particles.forEach(p=>p.draw());document.getElementById('score').textContent=score;requestAnimationFrame(gameLoop);}
 
-
-function updateBestDisplays(){
-  document.getElementById('highScore').textContent=highScore;
-  document.getElementById('bestScoreStart').textContent=highScore;
-  document.getElementById('bestScoreOver').textContent=highScore;
-}
-function initGame(){player=new Player();barriers=[];particles=[];initStars();
- score=0;frame=0;gameSpeed=DIFFS[difficulty].baseSpeed;
- updateBestDisplays();document.getElementById('pauseBtn').textContent='PAUSE';}
-function gameLoop(){
- if(!gameRunning||gamePaused)return;frame++;
- ctx.clearRect(0,0,canvas.width,canvas.height);drawStars();
- const d=DIFFS[difficulty];gameSpeed=d.baseSpeed+Math.floor(score/30)*d.speedInc;
- if(frame%d.spawnBase===0)createBarrierPair();
- player.update();
- barriers=barriers.filter(b=>{b.update();if(b.passed(player.x)){b.scored=true;score+=10;}return !b.off();});
- particles=particles.filter(p=>{p.update();return !p.dead();});
- const pb=player.bounds();for(const b of barriers)if(collide(pb,b.bounds()))return gameOver();
- player.draw();barriers.forEach(b=>b.draw());particles.forEach(p=>p.draw());
- document.getElementById('score').textContent=score;
- requestAnimationFrame(gameLoop);}
-function startGame(diff){difficulty=diff;initAudio();document.getElementById('startScreen').style.display='none';
- gameRunning=true;gameStarted=true;initGame();playSound('start');gameLoop();}
-function gameOver(){
-  gameRunning=false;playSound('gameOver');
-  if(score>highScore){highScore=score;localStorage.setItem('ethereumRunnerHighScore',highScore);updateBestDisplays();}
-  document.getElementById('finalScore').textContent=score;
-  document.getElementById('gameOverScreen').style.display='block';
-  for(let i=0;i<20;i++)particles.push(new Particle(player.x,player.y,'#ff0080'));
-}
-function restartGame(){document.getElementById('gameOverScreen').style.display='none';
- document.getElementById('pauseScreen').style.display='none';
- gamePaused=false;gameRunning=true;initGame();playSound('start');gameLoop();}
-function returnToMenu(){
-  document.getElementById('gameOverScreen').style.display='none';
-  document.getElementById('pauseScreen').style.display='none';
-  gameRunning=false;gamePaused=false;gameStarted=false;
-  updateBestDisplays();
-  document.getElementById('startScreen').style.display='block';
-}
-function togglePause(){if(!gameStarted||!gameRunning)return;gamePaused=!gamePaused;
- document.getElementById('pauseScreen').style.display=gamePaused?'block':'none';
- document.getElementById('pauseBtn').textContent=gamePaused?'RESUME':'PAUSE';if(!gamePaused)gameLoop();}
-
+function startGame(diff){difficulty=diff;initAudio();document.getElementById('startScreen').style.display='none';removeModalState();gameRunning=true;gameStarted=true;initGame();playSound('start');gameLoop();}
+function gameOver(){gameRunning=false;addModalState();playSound('gameOver');if(score>highScore){localStorage.setItem('ethereumRunnerHighScore',score);updateBestDisplays();}document.getElementById('finalScore').textContent=score;document.getElementById('gameOverScreen').style.display='block';for(let i=0;i<20;i++)particles.push(new Particle(player.x,player.y,'#ff0080'));}
+function restartGame(){document.getElementById('gameOverScreen').style.display='none';document.getElementById('pauseScreen').style.display='none';removeModalState();gamePaused=false;gameRunning=true;initGame();playSound('start');gameLoop();}
+function returnToMenu(){document.getElementById('gameOverScreen').style.display='none';document.getElementById('pauseScreen').style.display='none';addModalState();gameRunning=gamePaused=gameStarted=false;updateBestDisplays();document.getElementById('startScreen').style.display='block';}
+function togglePause(){if(!gameStarted||!gameRunning)return;gamePaused=!gamePaused;document.getElementById('pauseScreen').style.display=gamePaused?'block':'none';gamePaused?addModalState():removeModalState();document.getElementById('pauseBtn').textContent=gamePaused?'RESUME':'PAUSE';if(!gamePaused)gameLoop();}
 
 const keys={};
-function updateVx(){
-  if(keys['ArrowLeft']&&!keys['ArrowRight'])player.vx=-4;
-  else if(keys['ArrowRight']&&!keys['ArrowLeft'])player.vx=4;
-  else player.vx=0;
-}
+function updateVx(){player.vx=(keys.ArrowLeft?-4:0)+(keys.ArrowRight?4:0);}
 function thrust(){if(gameRunning&&!gamePaused)player.jump();}
-document.addEventListener('keydown',e=>{
-  if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();thrust();}
-  else if(e.code==='ArrowLeft'||e.code==='ArrowRight'){keys[e.code]=true;updateVx();}
-  else if(e.code==='KeyP')togglePause();
-});
-document.addEventListener('keyup',e=>{
-  if(e.code==='ArrowLeft'||e.code==='ArrowRight'){keys[e.code]=false;updateVx();}
-});
+document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();thrust();}else if(e.code==='ArrowLeft'||e.code==='ArrowRight'){keys[e.code]=true;updateVx();}else if(e.code==='KeyP')togglePause();});
+document.addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='ArrowRight'){keys[e.code]=false;updateVx();}});
 canvas.addEventListener('click',thrust);
-canvas.addEventListener('touchstart',e=>{e.preventDefault();thrust();});
+canvas.addEventListener('touchstart',e=>{e.preventDefault();thrust();},{passive:false});
 
-updateBestDisplays();initGame();
+addModalState();updateBestDisplays();initGame();
 </script>
 </body>
 </html>
