@@ -6,7 +6,7 @@
 <title>ETHOS Runner</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* ---- LAYOUT & THEME ---- */
+  
   *{box-sizing:border-box}html,body{margin:0;padding:0}
   body{min-height:100vh;display:flex;justify-content:center;align-items:center;
        background:linear-gradient(135deg,#0a0a0a 0%,#1a0033 50%,#000000 100%);
@@ -19,7 +19,7 @@
                   box-shadow:0 0 20px rgba(0,255,255,.3),inset 0 0 20px rgba(0,255,255,.1)}
   canvas{display:block;border-radius:13px;
          background:linear-gradient(180deg,#0a0015 0%,#1a0033 50%,#0f001a 100%)}
-  /* ---- HUD / MODALS ---- */
+ 
   .ui-overlay{position:absolute;top:20px;left:20px;color:#00ffff;font-weight:700;
               text-shadow:0 0 10px rgba(0,255,255,.8);z-index:10}
   .pause-btn{position:absolute;top:20px;right:20px;padding:10px 20px;border:none;
@@ -44,14 +44,14 @@
 <div class="game-container">
  <canvas id="gameCanvas" width="1000" height="400"></canvas>
 
- <!-- HUD -->
+
  <div class="ui-overlay">
    <div>SCORE: <span id="score">0</span></div>
    <div>HIGH&nbsp;SCORE: <span id="highScore">0</span></div>
  </div>
  <button id="pauseBtn" class="pause-btn" onclick="togglePause()">PAUSE</button>
 
- <!-- START / MENU -->
+
  <div id="startScreen" class="modal start-screen">
    <h1 style="margin:0 0 10px;font-size:2.5em">ETHOS</h1>
    <h2 style="margin:0 0 20px;color:#ff0080">ETHOS RUNNER</h2>
@@ -67,7 +67,6 @@
    </div>
  </div>
 
- <!-- PAUSE -->
  <div id="pauseScreen" class="modal pause-screen">
    <h2 style="margin:0 0 20px;color:#ff0080">SYSTEM PAUSED</h2>
    <button class="btn" onclick="togglePause()">RESUME</button>
@@ -75,7 +74,7 @@
    <button class="btn" onclick="returnToMenu()">MENU</button>
  </div>
 
- <!-- GAME OVER -->
+
  <div id="gameOverScreen" class="modal game-over-screen">
    <h2 style="margin:0 0 20px;color:#ff0080">SYSTEM FAILURE</h2>
    <div style="font-size:1.2em;margin-bottom:10px">
@@ -100,9 +99,9 @@ let gameRunning=false,gameStarted=false,gamePaused=false;
 let score=0,highScore=Number(localStorage.getItem('ethereumRunnerHighScore')||0);
 let gameSpeed=3,frame=0;
 let player,barriers=[],particles=[],stars=[];
-const gapHeight=140;                 // size of the opening
+const gapHeight=140;                
 
-/* ---- AUDIO (unchanged) ---- */
+
 let audioContext,sounds={};
 function initAudio(){try{audioContext=new(window.AudioContext||window.webkitAudioContext)();createSounds();}catch(e){}}
 function createBeep(f,d){return()=>{if(!audioContext)return;const o=audioContext.createOscillator(),g=audioContext.createGain();
@@ -120,13 +119,12 @@ function createSweep(up){return()=>{if(!audioContext)return;const o=audioContext
 function createSounds(){sounds.jump=createBeep(700,.1);sounds.start=createSweep(true);sounds.gameOver=createSweep(false);}
 function playSound(n){sounds[n]&&sounds[n]();}
 
-/* ---- BACKGROUND ---- */
+
 function initStars(){stars=[];for(let i=0;i<100;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+.5,speed:Math.random()*.5+.2,op:Math.random()*.8+.2});}
 function drawStars(){stars.forEach(s=>{s.x-=s.speed;if(s.x<0)s.x=canvas.width;
   ctx.save();ctx.globalAlpha=s.op;ctx.fillStyle='#fff';ctx.shadowColor='#fff';
   ctx.shadowBlur=s.size;ctx.fillRect(s.x,s.y,s.size,s.size);ctx.restore();});}
 
-/* ---- PARTICLES ---- */
 class Particle{constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.vx=(Math.random()-.5)*6;this.vy=Math.random()*-4-1;
  this.life=25;this.size=Math.random()*3+1;}
  update(){this.x+=this.vx;this.y+=this.vy;this.vy+=.15;this.life--;}
@@ -134,7 +132,7 @@ class Particle{constructor(x,y,c){this.x=x;this.y=y;this.c=c;this.vx=(Math.rando
    ctx.shadowBlur=5;ctx.fillRect(this.x,this.y,this.size,this.size);ctx.restore();}
  dead(){return this.life<=0;}}
 
-/* ---- PLAYER ---- */
+
 class Player{
   constructor(){this.x=100;this.y=canvas.height/2;this.w=40;this.h=40;this.vx=0;this.vy=0;this.rot=0;}
   update(){
@@ -157,7 +155,7 @@ class Player{
   bounds(){return{x:this.x+5,y:this.y+5,w:this.w-10,h:this.h-10};}
 }
 
-/* ---- BARRIERS ---- */
+
 class Barrier{
  constructor(y,h){this.x=canvas.width;this.y=y;this.w=50;this.h=h;this.c=this.rand();this.p=0;this.scored=false;}
  rand(){return['#ff0080','#8000ff','#ff4000','#00ff80','#ffff00'][Math.floor(Math.random()*5)];}
@@ -170,15 +168,15 @@ class Barrier{
  off(){return this.x+this.w<0;}
  passed(px){return !this.scored&&px>this.x+this.w;}
 }
-/* ----- NEW: gap can be upper / middle / lower ----- */
+
 function createBarrierPair(){
   const mode=['upper','middle','lower'][Math.floor(Math.random()*3)];
   let topH;
-  if(mode==='upper'){                     // gap near top
-    topH=20+Math.random()*40;             // small top barrier
-  }else if(mode==='lower'){               // gap near bottom
+  if(mode==='upper'){                    
+    topH=20+Math.random()*40;             
+  }else if(mode==='lower'){              
     topH=canvas.height-gapHeight-(20+Math.random()*40);
-  }else{                                  // middle
+  }else{                                  
     topH=(canvas.height-gapHeight)/2;
   }
   if(topH<0)topH=0;
@@ -188,10 +186,10 @@ function createBarrierPair(){
   barriers.push(new Barrier(bottomY,bottomH));
 }
 
-/* ---- UTIL ---- */
+
 function collide(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;}
 
-/* ---- GAME FLOW ---- */
+
 function updateBestDisplays(){
   document.getElementById('highScore').textContent=highScore;
   document.getElementById('bestScoreStart').textContent=highScore;
@@ -235,7 +233,7 @@ function togglePause(){if(!gameStarted||!gameRunning)return;gamePaused=!gamePaus
  document.getElementById('pauseScreen').style.display=gamePaused?'block':'none';
  document.getElementById('pauseBtn').textContent=gamePaused?'RESUME':'PAUSE';if(!gamePaused)gameLoop();}
 
-/* ---- INPUT ---- */
+
 const keys={};
 function updateVx(){
   if(keys['ArrowLeft']&&!keys['ArrowRight'])player.vx=-4;
@@ -254,7 +252,6 @@ document.addEventListener('keyup',e=>{
 canvas.addEventListener('click',thrust);
 canvas.addEventListener('touchstart',e=>{e.preventDefault();thrust();});
 
-/* ---- INIT ---- */
 updateBestDisplays();initGame();
 </script>
 </body>
